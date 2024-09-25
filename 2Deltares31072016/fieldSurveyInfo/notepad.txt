@@ -1,0 +1,46 @@
+General information:
+
+Start: 09:41
+End: 17:05
+
+Weather conditions:
+
+	Cloud coverage: Start = 8/8
+			Middle = 5/8
+			End = 6/8
+	
+	Rain:		Start = No rain
+			Middle = No rain
+			End = No rain
+
+	Wind:		Start: Weak
+			Middle: Weak
+			End: Weak
+	
+	Other: 		Lakes = low level
+
+DGPS:
+
+	Antenna heigth: Camera measurement = 0.00 meters
+			Ground control points (GCP's) = 2.00 meters
+	
+	GCP's taken from the front wheel.
+
+Cameras:
+	Distance (for backup only): 
+		cam01 - cam02 = 1.25 meters
+		cam02 - cam03 = 0.68 meters
+		cam03 - cam04 = 0.625 meters
+		cam04 - cam05 = 1.27 meters
+		cam05 - cam06 = 0.47 meters
+		cam06 - cam07 = 1.42 meters
+		cam07 - cam08 = 0.63 meters
+		cam08 - cam09 = 0.78 meters
+		cam09 - cam10 = 0.66 meters
+		cam10 - cam11 = 0.545 meters
+		cam11 - cam12 = 0.67 meters
+		cam12 - cam01 = 0.87 meters
+	Heigth (from the tower floor): from 2 meters to 2.04 meters
+	Reference point on each camera: P:\CTW\WEM\Users\Temp\2Isaac\Zandmotor\Pictures\IMG_4568_scale.jpeg
+
+

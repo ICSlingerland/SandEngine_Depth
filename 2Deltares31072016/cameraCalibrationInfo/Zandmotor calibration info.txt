@@ -1,0 +1,7 @@
+Zandmotor calibration info
+
+
+c9 - camera: PtGrey Flea2 FL2G-50S5C serial# 14420967; Lens: Fujinon 12.5 mm HF12.5SA-1
+c10 - camera: PtGrey Flea2 FL2G-50S5C serial# 14464579; Lens: Fujinon 12.5 mm HF12.5SA-1
+c11 - camera: PtGrey Flea2 FL2G-50S5C serial# 14420974; Lens: Fujinon 12.5 mm HF12.5SA-1
+c12 - camera: PtGrey Flea2 FL2G-50S5C serial# 14464553; Lens: Fujinon 12.5 mm HF12.5SA-1

@@ -1,0 +1,1 @@
+The image filenames are made up, in order to have standard filename format to be used in FG tool for obtaining geometry solutions
