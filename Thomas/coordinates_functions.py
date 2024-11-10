@@ -155,3 +155,128 @@ def plot_gcp_residuals(gcp_array, residuals, padding_x, padding_y, title="GCP Re
 
     # Display the plot
     plt.show()
+
+
+def create_coordinate_grid(image_coordinates, lidar_points, resolution=10):
+    """
+    Create a grid over the given coordinates with specified resolution,
+    and assign points to grid cells.
+
+    Parameters:
+    - image_coordinates (ndarray): An array of shape (N, 2) with x (easting) and y (northing) coordinates.
+    - lidar_points (ndarray): An array of shape (N, 2) with real-world coordinates corresponding to image coordinates.
+    - resolution (int): The resolution of the grid in pixels (default is 10).
+
+    Returns:
+    - dict: A dictionary with grid cells as keys (i, j) and values as dictionaries containing image and lidar points.
+    """
+
+    # Define grid boundaries
+    min_E, max_E = np.min(image_coordinates[:, 0]), np.max(image_coordinates[:, 0])
+    min_N, max_N = np.min(image_coordinates[:, 1]), np.max(image_coordinates[:, 1])
+    
+    # Create bins for the grid
+    easting_bins = np.arange(min_E, max_E + resolution, resolution)
+    northing_bins = np.arange(min_N, max_N + resolution, resolution)
+
+    # Make the grid using meshgrid
+    easting_grid, northing_grid = np.meshgrid(easting_bins, northing_bins)
+
+    # Initialize a dictionary to store the points in each grid box
+    grid = {}
+
+    # Iterate over each grid cell
+    for i in range(easting_grid.shape[0]):
+        print(f"Processing row {i + 1}/{easting_grid.shape[0]}...")  # Display progress for each row
+        for j in range(northing_grid.shape[1]):
+            # Center and bounds of the current grid cell
+            east_center = easting_grid[i, j]
+            north_center = northing_grid[i, j]
+            east_min_region = east_center - resolution / 2
+            east_max_region = east_center + resolution / 2
+            north_min_region = north_center - resolution / 2
+            north_max_region = north_center + resolution / 2
+
+            # Find indices of image coordinates within the current grid box
+            image_coordinates_indices = np.where(
+                (image_coordinates[:, 0] >= east_min_region) & (image_coordinates[:, 0] < east_max_region) &
+                (image_coordinates[:, 1] >= north_min_region) & (image_coordinates[:, 1] < north_max_region)
+            )[0]
+
+            # Assign image and real coordinates to the current grid cell
+            grid_key = (i, j)
+            grid[grid_key] = {
+                'image_coordinates': image_coordinates[image_coordinates_indices],
+                'real_coordinates': lidar_points[image_coordinates_indices]
+            }
+
+    return grid
+
+import numpy as np
+
+def create_distance_grid(image_coordinates, lidar_points, argus_tower, resolution=5):
+    """
+    Creates a grid from lidar points and image coordinates, then calculates
+    the minimum distance from a reference point (e.g., Argus Tower) for each cell.
+
+    Parameters:
+    - image_coordinates (ndarray): Array of shape (N, 2) with x (easting) and y (northing) coordinates.
+    - lidar_points (ndarray): Array of shape (N, 2) with real-world coordinates corresponding to image coordinates.
+    - argus_tower (ndarray): Array with the reference point coordinates to calculate distances.
+    - resolution (int): The resolution of the grid in pixels (default is 5).
+
+    Returns:
+    - dict: A dictionary where each key is a grid cell, with values containing min distances to the reference point.
+    """
+
+    # Define grid boundaries
+    min_E, max_E = np.min(image_coordinates[:, 0]), np.max(image_coordinates[:, 0])
+    min_N, max_N = np.min(image_coordinates[:, 1]), np.max(image_coordinates[:, 1])
+
+    # Create bins for the grid
+    easting_bins = np.arange(min_E, max_E + resolution, resolution)
+    northing_bins = np.arange(min_N, max_N + resolution, resolution)
+
+    # Digitize to find which grid cell each point belongs to
+    easting_indices = np.digitize(image_coordinates[:, 0], easting_bins) - 1
+    northing_indices = np.digitize(image_coordinates[:, 1], northing_bins) - 1
+
+    # Initialize the grid dictionary to store points and min distances
+    grid = {}
+    min_distances = {}
+
+    # Assign each point to its corresponding grid cell
+    for idx in range(len(image_coordinates)):
+        i, j = northing_indices[idx], easting_indices[idx]  # Grid cell indices
+
+        # Skip points out of the grid bounds
+        if i < 0 or i >= len(northing_bins) - 1 or j < 0 or j >= len(easting_bins) - 1:
+            continue
+
+        # Create a unique key for the grid cell
+        grid_key = (i, j)
+        
+        # Initialize the cell if it doesn't exist
+        if grid_key not in grid:
+            grid[grid_key] = {'image_coordinates': [], 'real_coordinates': []}
+        
+        # Append image and real coordinates to the grid cell
+        grid[grid_key]['image_coordinates'].append(image_coordinates[idx])
+        grid[grid_key]['real_coordinates'].append(lidar_points[idx])
+
+    # Calculate minimum distance for each grid cell
+    for key, value in grid.items():
+        if value['real_coordinates']:  # Only process non-empty cells
+            # Convert lists to arrays
+            value['image_coordinates'] = np.array(value['image_coordinates'])
+            value['real_coordinates'] = np.array(value['real_coordinates'])
+
+            # Calculate distances to the reference point for all coordinates in the cell
+            distances = np.linalg.norm(value['real_coordinates'] - argus_tower[:2], axis=1)
+
+            # Find the minimum distance for the grid cell
+            min_distances[key] = np.min(distances)
+
+    print("Grid processing and distance calculation complete.")
+    return grid, min_distances
+
